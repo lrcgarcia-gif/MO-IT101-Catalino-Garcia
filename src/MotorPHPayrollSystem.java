@@ -17,36 +17,40 @@ public class MotorPHPayrollSystem {
 
     public static void main(String[] args) {
 
-        // Correct path to your uploaded file
+        // Path to the source CSV file containing employee records
         String filePath = "employee_data.csv";
 
-        // We increase the array size to hold more data columns if needed
-        // Format: [Row][0=Name, 1=Hourly Rate, 2=Basic Salary]
+        // Step 1: Extract data from the CSV file into a 2D Array
+        // We store Name, Hourly Rate, and Basic Salary
         String[][] employees = readFromFile(filePath);
 
-        // Loop through employees (starting at index 1 to skip the header)
+        // Step 2: Iterate through the loaded employee data
+        // Start from index 1 to skip the CSV Header row
         for (int i = 1; i < employees.length; i++) {
-
+            
+            // Check if the row is empty to avoid NullPointerExceptions
             if (employees[i][0] == null) {
                 continue;
             }
-
+            
+            // Map data from the array to descriptive variables    
             String employeeName = employees[i][0];
             
-            // NOTE: The CSV doesn't have "Hours Worked". 
-            // I'm using a placeholder of 40 hours for demonstration.
+            /* * NOTE: Since the CSV provides the 'Hourly Rate' and 'Basic Salary', 
+             * we calculate based on a standard 40-hour work week placeholder.
+             */
             double hoursWorked = 40.0; 
             
-            // Clean the numeric strings (remove commas and quotes)
             double hourlyRate = parseDoubleSafe(employees[i][1]);
             double basicSalary = parseDoubleSafe(employees[i][2]);
-
-            // Compute payroll
+  
+           // Step 3: Core Payroll Calculations
             double grossPay = computeGrossPay(hoursWorked, hourlyRate);
             
-            // In your CSV, the Gross Semi-monthly rate is often Basic Salary / 2
+            // Calculating Semi-Monthly base (usually Basic Salary divided by 2)
             double semiMonthlySalary = basicSalary / 2;
-
+            
+            // Step 4: Compute Mandatory Government Deductions
             // Government deductions
             double sss = computeSSS(semiMonthlySalary);
             double philhealth = computePhilhealth(semiMonthlySalary);
@@ -54,8 +58,10 @@ public class MotorPHPayrollSystem {
 
             double totalDeductions = sss + philhealth + pagibig;
             double netPay = semiMonthlySalary - totalDeductions;
-
-            // Print payroll details
+            
+            /**
+     * Formats and prints the payroll results to the console.
+     */
             System.out.println("Employee: " + employeeName);
             System.out.println("Hours Worked (Assumed): " + hoursWorked);
             System.out.println("Hourly Rate: " + hourlyRate);
@@ -72,7 +78,13 @@ public class MotorPHPayrollSystem {
             System.out.println("--------------------------------------");
         }
     }
-
+    /**
+     * Reads a CSV file and maps specific columns to a 2D String Array.
+     * Handles complex CSV lines that contain commas within quotes (like Addresses).
+     * @param filePath The path to the employees.csv file
+     * @return 2D String array containing [Name, Hourly Rate, Basic Salary]
+     */
+    
     public static String[][] readFromFile(String filePath) {
         String[][] employees = new String[100][3];
         int index = 0;
@@ -80,15 +92,15 @@ public class MotorPHPayrollSystem {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null && index < 100) {
-                // regex to split by comma but ignore commas inside quotes (like in addresses)
+                // Regex: Splits by comma only if the comma is NOT inside double quote
                 String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
                 if (data.length > 18) {
-                    // Index 2: First Name, Index 1: Last Name
+                    // Combine First and Last Name (Index 2 and 1)
                     employees[index][0] = data[2] + " " + data[1]; 
-                    // Index 18: Hourly Rate
+                   // Hourly Rate is found at Column Index 18
                     employees[index][1] = data[18]; 
-                    // Index 13: Basic Salary
+                    // Basic Salary is found at Column Index 13
                     employees[index][2] = data[13]; 
                 }
                 index++;
@@ -99,7 +111,10 @@ public class MotorPHPayrollSystem {
         return employees;
     }
 
-    // Helper to remove commas and quotes before converting to double
+    /**
+     * Helper method to convert String currency values to Doubles.
+     * Removes commas and quotes found in CSV formatting.
+     */
     public static double parseDoubleSafe(String value) {
         if (value == null || value.isEmpty()) return 0.0;
         // Remove quotes and commas
@@ -110,19 +125,19 @@ public class MotorPHPayrollSystem {
             return 0.0;
         }
     }
-
+    /** Calculates Gross Pay based on hours and rate */
     public static double computeGrossPay(double hoursWorked, double hourlyRate) {
         return hoursWorked * hourlyRate;
     }
-
+    /** Calculates SSS deduction (Placeholder rate: 4.5%) */
     public static double computeSSS(double salary) {
         return salary * 0.045;
     }
-
+    /** Calculates PhilHealth deduction (Placeholder rate: 3.0%) */
     public static double computePhilhealth(double salary) {
         return salary * 0.03;
     }
-
+    /** Calculates Pag-IBIG deduction (Placeholder rate: 2.0%) */
     public static double computePagibig(double salary) {
         return salary * 0.02;
     }
