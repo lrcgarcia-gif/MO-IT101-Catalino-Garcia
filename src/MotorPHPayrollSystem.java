@@ -3,10 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 /**
- * Project: MotorPH Payroll System (Annual Payroll Summary)
- * Author: [Your Name]
- * Description: Generates an annual report with specific date-range cutoffs:
- * January 1 to 15 and January 16 to 30.
+ * 
  */
 
 import java.io.BufferedReader;
@@ -69,7 +66,23 @@ public class MotorPHPayrollSystem {
                     double totalDeductions = totalStatutory + withholdingTax;
                     double netPay = grossSalary - totalDeductions;
 
-                    // Output Display
+                    /* Output Display
+                    Cutoff :
+                    Total Hours Worked:
+                    Gross Salary:
+                    
+                    Stattutory Deductions:
+                    SSS:
+                    Philhealth:
+                    Pag-ibig:
+                    
+                    Taxable Incomet & Tax:
+                    Withholding Tax:
+                    
+                    Total Deductions
+                    NetPay
+                    */
+                    
                     System.out.printf("    Cutoff Period     : %s %n", dateRange);
                     System.out.printf("    Total Hours Worked: %.2f hrs %n", totalHoursWorked);
                     System.out.printf("    Gross Salary      : PHP %,.2f %n", grossSalary);
@@ -94,9 +107,6 @@ public class MotorPHPayrollSystem {
         }
     }
 
-    /* -------------------------------------------------------------------------
-       HELPER METHODS (Crucial: Keep these inside the class braces)
-    ------------------------------------------------------------------------- */
 
     public static String[][] readFromFile(String filePath) {
         String[][] employees = new String[100][6]; 
