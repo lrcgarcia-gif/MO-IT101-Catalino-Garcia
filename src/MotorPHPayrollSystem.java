@@ -3,14 +3,31 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * MotorPH Payroll System - Terminal Assessment Submission -
+ * Comprog1 - 21 Mar 26
+ * Created by: Katallino
+ * * This program handles employee login, data retrieval from a CSV file, 
+ * and payroll calculation for June to December.
+ */
+
 public class MotorPHPayrollSystem {
+
+    // --- CONSTANTS (Coach Fix #1: Replacing Magic Numbers) ---
+    // Using names instead of raw numbers like 0, 3, or 18 makes the code easier to read.
+    private static final int ID_COL = 0;
+    private static final int LAST_NAME_COL = 1;
+    private static final int FIRST_NAME_COL = 2;
+    private static final int BDAY_COL = 3;
+    private static final int HOURLY_RATE_COL = 18;
+    private static final int MIN_COL_COUNT = 19; 
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         // --- LOGIN SYSTEM ---
         System.out.println("=======================================");
-        System.out.println("       MOTORPH SYSTEM LOGIN            ");
+        System.out.println("        MOTORPH SYSTEM LOGIN           ");
         System.out.println("=======================================");
         System.out.print("Enter Username: ");
         String username = sc.nextLine();
@@ -80,9 +97,20 @@ public class MotorPHPayrollSystem {
                     generatePayroll(employees, index);
                 }
             } else if (subChoice == 2) {
+                // --- Coach Fix #2: Added a separator before the loop starts ---
+                System.out.println("\n*** STARTING BATCH PROCESSING FOR ALL EMPLOYEES ***");
+                
                 for (int i = 1; i < employees.length; i++) {
-                    if (employees[i][0] != null) generatePayroll(employees, i);
+                    if (employees[i][0] != null) {
+                        // Added a clear visual break between each employee's data
+                        System.out.println("\n============================================================");
+                        System.out.println("PROCESSING RECORD: " + i);
+                        System.out.println("============================================================");
+                        
+                        generatePayroll(employees, i);
+                    }
                 }
+                System.out.println("\n*** BATCH PROCESSING COMPLETE ***");
             }
         }
     }
@@ -100,7 +128,7 @@ public class MotorPHPayrollSystem {
 
         for (String month : months) {
             // 1st Cutoff (1-15) - No Deductions
-            double hours1 = calculateAttendanceHours(); // Placeholder for actual attendance logic
+            double hours1 = calculateAttendanceHours(); 
             double gross1 = hours1 * hourlyRate;
             System.out.println("\nCutoff Date: " + month + " 1 to " + month + " 15");
             System.out.println("Total Hours Worked: " + hours1);
@@ -111,7 +139,6 @@ public class MotorPHPayrollSystem {
             double hours2 = calculateAttendanceHours();
             double gross2 = hours2 * hourlyRate;
             
-            // Per requirements: compute deductions based on combined monthly gross
             double monthlyGross = gross1 + gross2;
             double sss = monthlyGross * 0.045;
             double phil = monthlyGross * 0.03;
@@ -131,19 +158,8 @@ public class MotorPHPayrollSystem {
         }
     }
 
-    /**
-     * Logic for Hours Worked (8:00 AM - 5:00 PM)
-     * Requirement: 8:05 AM login is not late (still 8 hours).
-     * 8:30 AM login to 5:30 PM logout = 7.5 hours.
-     */
     public static double calculateAttendanceHours() {
-        // This is a logic placeholder. In a full system, you would parse the 
-        // login/logout strings from your attendance CSV.
-        // Example logic:
-        // if (login <= 8:05) start = 8:00
-        // if (logout >= 17:00) end = 17:00
-        // return (end - start) - 1 hour break;
-        return 80.0; // Placeholder for a 15-day period (approx 80 hours)
+        return 80.0; // Placeholder for a 15-day period
     }
 
     // --- CSV HELPER METHODS ---
@@ -154,15 +170,19 @@ public class MotorPHPayrollSystem {
             String line;
             while ((line = br.readLine()) != null && index < 100) {
                 String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                if (data.length > 18) {
-                    employees[index][0] = data[0]; // ID
-                    employees[index][1] = data[2].replace("\"", "") + " " + data[1].replace("\"", ""); // Name
-                    employees[index][2] = data[3]; // Bday
-                    employees[index][4] = data[18]; // Hourly
+                
+                // --- Coach Fix #1: Using the constants we defined at the top ---
+                if (data.length >= MIN_COL_COUNT) {
+                    employees[index][0] = data[ID_COL]; 
+                    employees[index][1] = data[FIRST_NAME_COL].replace("\"", "") + " " + data[LAST_NAME_COL].replace("\"", ""); 
+                    employees[index][2] = data[BDAY_COL]; 
+                    employees[index][4] = data[HOURLY_RATE_COL]; 
                 }
                 index++;
             }
-        } catch (Exception e) { }
+        } catch (Exception e) { 
+            System.out.println("Error reading file.");
+        }
         return employees;
     }
 
